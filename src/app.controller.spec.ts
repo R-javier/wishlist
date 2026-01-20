@@ -15,7 +15,7 @@ describe('AppController', () => {
   });
 
   describe('root', () => {
-    it('should return "Hello World!"', () => {
+    it('should return a product', () => {
       const result: Product = appController.getProduct();
        
       expect(result).toBeDefined();
