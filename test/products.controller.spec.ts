@@ -1,37 +1,46 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import {
   HttpException,
-  HttpStatus,
   BadRequestException,
   NotFoundException,
   RequestTimeoutException,
   ServiceUnavailableException,
+  INestApplication,
+  Module,
 } from '@nestjs/common';
 import { ProductsController } from './../src/products/products.controller';
 import { ProductsService } from '../src/products/products.service';
 import { HttpService } from '@nestjs/axios';
-import { of, throwError } from 'rxjs';
-import { AxiosError, AxiosResponse } from 'axios';
+import { throwError } from 'rxjs';
+import { AxiosError } from 'axios';
 
 describe('ProductsController', () => {
   let controller: ProductsController;
   let service: ProductsService;
   let httpService: HttpService;
+  let app: INestApplication
 
-  beforeEach(async () => {
+  beforeAll(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [ProductsController],
       providers: [
         ProductsService,
         { provide: HttpService, useValue: { get: jest.fn() } },
       ],
+      
     }).compile();
 
     controller = module.get<ProductsController>(ProductsController);
     service = module.get<ProductsService>(ProductsService);
     httpService = module.get<HttpService>(HttpService);
+
+    app = module.createNestApplication()
+    app.init()
   });
 
+  afterAll(async () => {
+    await app.close()
+  })
   it('should be defined', () => {
     expect(controller).toBeDefined();
   });

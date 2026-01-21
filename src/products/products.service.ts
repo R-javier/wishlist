@@ -11,7 +11,6 @@ import { ProductDTO } from 'src/dto/product.dto';
 import { HttpService } from '@nestjs/axios';
 import { firstValueFrom } from 'rxjs';
 import { CatalogResponse } from 'src/dto/catalog-response.interface';
-import axios from 'axios';
 
 @Injectable()
 export class ProductsService {
@@ -25,22 +24,15 @@ export class ProductsService {
         this.httpService.get<CatalogResponse>(this.productsServiceUrl),
       );
 
-      if (response.status !== 200) {
-        throw new HttpException(
-          `Respuesta inesperada del catálogo: ${response.status}`,
-          HttpStatus.BAD_GATEWAY,
-        );
-      }
-
       return response.data?.products ?? [];
     } catch (err) {
-      if (axios.isAxiosError(err)) {
+      if (err.isAxiosError || err.response) {
         const status = err.response?.status;
 
         switch (status) {
           case 400:
             throw new BadRequestException(
-              err.response?.data?.message ||
+              err.response?.data.message ||
                 'Solicitud inválida al servicio de catálogo',
             );
 
