@@ -1,15 +1,17 @@
 import { Controller, Get, Param} from '@nestjs/common';
+import { ProductsService } from './products.service';
 
 @Controller('products')
 export class ProductsController {
+    constructor(private readonly productsService: ProductsService ){}
 
     @Get()
-    findAll(){
-        return 'Traigo todos los productos';
+    async findAll(){
+        return  await this.productsService.getProducts()
     }
 
-    @Get(':id')
-    findOne(@Param('id') id: string){
-        return `Traigo solo este producto ${id}`;
-   }
+//     @Get(':id')
+//     async findOne(@Param('id') id: string){
+//         return await this.productsService.getProductsById(id);
+//    }
 }
