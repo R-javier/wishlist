@@ -130,6 +130,7 @@ await expect(controller.getProducts()).rejects.toThrow(new NotFoundException('No
   });
 
   const products = await controller.getProducts();
+  console.log(products)
     expect(products[0]).toBeInstanceOf(ProductDTO)
 
   })
