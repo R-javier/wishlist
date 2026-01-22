@@ -11,8 +11,10 @@ import {
 import { ProductsController } from './../src/products/products.controller';
 import { ProductsService } from '../src/products/products.service';
 import { HttpService } from '@nestjs/axios';
-import { throwError } from 'rxjs';
-import { AxiosError } from 'axios';
+import { of, throwError } from 'rxjs';
+import { AxiosError, AxiosResponse } from 'axios';
+import  {ProductDTO} from './../src/dto/product.dto'
+import {ErrorHandlerService} from './../src/error-handler/error-handler.service'
 
 describe('ProductsController', () => {
   let controller: ProductsController;
@@ -25,7 +27,8 @@ describe('ProductsController', () => {
       controllers: [ProductsController],
       providers: [
         ProductsService,
-        { provide: HttpService, useValue: { get: jest.fn() } },
+        ErrorHandlerService,
+        { provide: HttpService, useValue: { get: jest.fn() } }
       ],
       
     }).compile();
@@ -58,12 +61,7 @@ describe('ProductsController', () => {
       .spyOn(httpService, 'get')
       .mockReturnValue(throwError(() => axiosError));
 
-    try {
-      await controller.getProducts();
-    } catch (error) {
-      expect(error).toBeInstanceOf(BadRequestException);
-      expect(error.message).toBe('Solicitud inválida al servicio de catálogo');
-    }
+      await expect(controller.getProducts()).rejects.toThrow(new BadRequestException('Solicitud inválida al servicio de catálogo'))
   });
 
   it('should return the service default message for 404', async () => {
@@ -79,14 +77,8 @@ describe('ProductsController', () => {
       .spyOn(httpService, 'get')
       .mockReturnValue(throwError(() => axiosError));
 
-    try {
-      await controller.getProducts();
-    } catch (error) {
-      expect(error).toBeInstanceOf(NotFoundException);
-      expect(error.message).toBe(
-        'No se encontraron productos en el servicio de catálogo',
-      );
-    }
+await expect(controller.getProducts()).rejects.toThrow(new NotFoundException('No se encontraron productos en el servicio de catálogo'))
+
   });
   it('should return the service default message for 408', async () => {
     const axiosError = {
@@ -101,15 +93,10 @@ describe('ProductsController', () => {
       .spyOn(httpService, 'get')
       .mockReturnValue(throwError(() => axiosError));
 
-    try {
-      await controller.getProducts();
-    } catch (error) {
-      expect(error).toBeInstanceOf(RequestTimeoutException);
-      expect(error.message).toBe(
-        'El servicio de catálogo tardó demasiado en responder',
-      );
-    }
-  });
+
+      await expect(controller.getProducts()).rejects.toThrow(new RequestTimeoutException('El servicio de catálogo tardó demasiado en responder'))
+
+    });
   it('should return the service default message for 504', async () => {
     const axiosError = {
       response: {
@@ -123,14 +110,8 @@ describe('ProductsController', () => {
       .spyOn(httpService, 'get')
       .mockReturnValue(throwError(() => axiosError));
 
-    try {
-      await controller.getProducts();
-    } catch (error) {
-      expect(error).toBeInstanceOf(ServiceUnavailableException);
-      expect(error.message).toBe(
-        'El servicio de catálogo no está disponible en este momento',
-      );
-    }
+            await expect(controller.getProducts()).rejects.toThrow(new ServiceUnavailableException('El servicio de catálogo no está disponible en este momento'))
+
   });
   it('should return the service default message unhandled errors', async () => {
     const axiosError = {
@@ -145,11 +126,21 @@ describe('ProductsController', () => {
       .spyOn(httpService, 'get')
       .mockReturnValue(throwError(() => axiosError));
 
-    try {
-      await controller.getProducts();
-    } catch (error) {
-      expect(error).toBeInstanceOf(HttpException);
-      expect(error.message).toBe('Error inesperado del servicio de catálogo');
-    }
+            await expect(controller.getProducts()).rejects.toThrow(new HttpException('Error inesperado del servicio de catálogo',
+              500,))
+
   });
+  it('should return a list of products', async () =>{
+    const realHttpService = new HttpService();
+  
+  Object.defineProperty(service, 'httpService', {
+    value: realHttpService,
+    writable: true,
+  });
+
+  const products = await controller.getProducts();
+  console.log(products)
+    expect(products[0]).toBeInstanceOf(ProductDTO)
+
+  })
 });
