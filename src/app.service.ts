@@ -1,4 +1,5 @@
 import { Injectable } from "@nestjs/common";
+import { pool } from "database/postgres";
 
 export type Product = {
   id: string;
@@ -14,17 +15,20 @@ export type Product = {
 
 @Injectable()
 export class AppService {
-  getProduct(): Product {
-    return {
-      id: "p-1001",
-      title: "Auriculares Eco 001",
-      category: "Audio",
-      price: 78320,
-      currency: "ARS",
-      stock: 71,
-      rating: 5.5,
-      imageUrl: "https://example.invalid/images/p-1001.jpg",
-      createdAt: "2025-01-01T00:00:00Z",
-    };
-  }
+async getProduct(userId: number, productId: number): Promise<Product[]> {
+  const result = await pool.query(
+    `
+    INSERT INTO products (user_id, product_id)
+    VALUES ($1, $2)
+    RETURNING *;
+    `,
+    [userId, productId],
+  );
+ 
+  return result.rows;
+}
+ getProductById(productId):Product {
+
+ }
+
 }
