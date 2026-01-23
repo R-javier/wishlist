@@ -7,3 +7,4 @@ export const pool = new Pool({
   password: 'postgres',
   database: 'products-db',
 });
+
