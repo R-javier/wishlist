@@ -21,3 +21,6 @@ services:
     volumes:
       - ./external-service/db.json:/data/db.json:ro
     command: /data/db.json
+
+volumes:
+  pg-data:
