@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { ConflictException, Injectable } from '@nestjs/common';
 import { pool } from 'database/postgres';
 
 @Injectable()
@@ -6,13 +6,33 @@ export class UsersService {
   async createFavorite(userId: number, productId: string) {
     const result = await pool.query(
       `
-      INSERT INTO favourites (user_id, product_id)
+      INSERT INTO favourites (user_id, product_external_id)
       VALUES ($1, $2)
-      RETURNING *
+      ON CONFLICT (user_id, product_external_id) DO NOTHING
+      RETURNING *;
     `,
       [userId, productId],
     );
 
+    if(result.rows.length === 0){
+      throw new ConflictException('El favorito ya existe');
+    }
+
     return result.rows[0];
+  }
+
+  async deleteFavorite(userId: number, productId: string): Promise<number>{
+    const result = await pool.query(
+      `
+      UPDATE favourites
+      SET active = false
+      WHERE user_id = $1 
+      AND product_external_id = $2 
+      AND active = true
+      RETURNING *;
+      `,
+      [userId, productId],
+    );
+    return result.rows.length;
   }
 }
