@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, ConflictException } from '@nestjs/common';
 import { pool } from 'src/commons/database/db';
 import { ProductDTO } from 'src/dto/product.dto';
 import { ProductsService } from 'src/products/products.service';
@@ -43,5 +43,38 @@ export class UsersService {
     );
 
     return favouritesProducts;
+  }
+
+  async createFavorite(userId: number, productId: string) {
+    const result = await pool.query(
+      `
+      INSERT INTO favourites (user_id, product_external_id)
+      VALUES ($1, $2)
+      ON CONFLICT (user_id, product_external_id) DO NOTHING
+      RETURNING *;
+    `,
+      [userId, productId],
+    );
+
+    if (result.rows.length === 0) {
+      throw new ConflictException('El favorito ya existe');
+    }
+
+    return result.rows[0];
+  }
+
+  async deleteFavorite(userId: number, productId: string): Promise<number> {
+    const result = await pool.query(
+      `
+      UPDATE favourites
+      SET active = false
+      WHERE user_id = $1 
+      AND product_external_id = $2 
+      AND active = true
+      RETURNING *;
+      `,
+      [userId, productId],
+    );
+    return result.rows.length;
   }
 }

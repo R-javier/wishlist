@@ -9,7 +9,8 @@ import { ConfigService } from '@nestjs/config';
 @Injectable()
 export class ProductsService {
   private readonly productsServiceUrl: string;
-  constructor(private readonly httpService: HttpService,
+  constructor(
+    private readonly httpService: HttpService,
     private readonly configService: ConfigService,
   ) {
     this.productsServiceUrl = this.configService.get<string>('CATALOG_SERVICE_URL')!;

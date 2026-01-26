@@ -26,4 +26,5 @@ export class ProductsController {
       this.errorHandlerService.handleError(error);
     }
   }
+
 }
