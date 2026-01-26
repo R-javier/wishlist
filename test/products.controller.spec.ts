@@ -14,7 +14,7 @@ import { HttpService } from '@nestjs/axios';
 import { throwError, of } from 'rxjs';
 import { AxiosError } from 'axios';
 import { ProductDTO } from './../src/dto/product.dto';
-import { ErrorHandlerService } from './../src/error-handler/error-handler.service';
+import { ErrorHandlerService } from '../src/commons/error-handler/error-handler.service';
 import { ConfigService } from '@nestjs/config';
 import * as db from './../external-service/db.json';
 

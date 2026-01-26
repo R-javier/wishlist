@@ -5,7 +5,6 @@ import { ProductDTO } from 'src/dto/product.dto';
 import { HttpService } from '@nestjs/axios';
 import { firstValueFrom } from 'rxjs';
 import { ConfigService } from '@nestjs/config';
-import { CatalogResponse } from 'src/dto/catalog-response.interface';
 
 @Injectable()
 export class ProductsService {
