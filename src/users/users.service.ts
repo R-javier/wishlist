@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { pool } from 'database/postgres';
+import { pool } from 'src/commons/database/db';
 import { ProductDTO } from 'src/dto/product.dto';
 import { ProductsService } from 'src/products/products.service';
 
@@ -16,7 +16,7 @@ export class UsersService {
 `);
     console.log('DEBUG DB:', debug.rows);
     const all = await pool.query('SELECT * FROM users');
-    console.log('TODOS LOS USERS:', all.rows);
+    console.log('TODOS LOS USERS:', all);
     const result = await pool.query(
       `SELECT id, user_id, product_external_id, created_at 
      FROM users 

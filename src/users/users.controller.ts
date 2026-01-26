@@ -1,6 +1,6 @@
 import { Controller, Get, Param, ParseIntPipe } from '@nestjs/common';
 import { UsersService } from './users.service';
-import { ErrorHandlerService } from '../error-handler/error-handler.service';
+import { ErrorHandlerService } from '../commons/error-handler/error-handler.service';
 
 @Controller('users')
 export class UsersController {
