@@ -1,10 +1,16 @@
-CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
-
-
-CREATE TABLE users (
-    id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+CREATE TABLE IF NOT EXISTS favourites (
+    id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     user_id INTEGER NOT NULL,
     product_external_id VARCHAR(255) NOT NULL,
-    product_id UUID NOT NULL,
+    active BOOLEAN NOT NULL DEFAULT TRUE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+
+ALTER TABLE favourites
+  ADD CONSTRAINT IF NOT EXISTS favourites_unique 
+  UNIQUE (user_id, product_external_id);
+
+
+ALTER TABLE favourites
+  DROP COLUMN IF EXISTS estado;

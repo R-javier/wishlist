@@ -6,9 +6,9 @@ export class UsersService {
   async createFavorite(userId: number, productId: string) {
     const result = await pool.query(
       `
-      INSERT INTO favourites (user_id, product_id)
+      INSERT INTO favourites (user_id, product_external_id)
       VALUES ($1, $2)
-      ON CONFLICT (user_id, product_id) DO NOTHING
+      ON CONFLICT (user_id, product_external_id) DO NOTHING
       RETURNING *;
     `,
       [userId, productId],
@@ -24,11 +24,15 @@ export class UsersService {
   async deleteFavorite(userId: number, productId: string): Promise<number>{
     const result = await pool.query(
       `
-      DELETE FROM favourites
-      WHERE user_id = $1 AND product_id = $2
+      UPDATE favourites
+      SET active = false
+      WHERE user_id = $1 
+      AND product_external_id = $2 
+      AND active = true
+      RETURNING *;
       `,
       [userId, productId],
     );
-    return result.rowCount ?? 0
+    return result.rows.length;
   }
 }
