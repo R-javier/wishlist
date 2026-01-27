@@ -1,12 +1,9 @@
-import {
-  Injectable,
-  ConflictException,
-  NotFoundException,
-} from '@nestjs/common';
+import { Injectable, ConflictException } from '@nestjs/common';
 import { pool } from 'src/commons/database/db';
 import { FavouriteDTO } from 'src/dto/favourite.dto';
 import { ProductDTO } from 'src/dto/product.dto';
 import { ProductsService } from 'src/products/products.service';
+import { NotFoundException } from '@nestjs/common';
 
 //TODO como usar el errorHandler para gestionar los errores?
 
@@ -81,7 +78,6 @@ export class UsersService {
   }
 
   async deleteFavorite(userId: number, productId: string): Promise<string> {
-
     const result = await pool.query(
       `
       UPDATE favourites
@@ -94,6 +90,9 @@ export class UsersService {
       [userId, productId],
     );
 
+    if (result.rows.length === 0) {
+      throw new NotFoundException('Favourite not found');
+    }
     return `El producto ${productId} ha sido eliminado de los favoritos del usuario ${userId}`;
   }
 }

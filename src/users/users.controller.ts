@@ -25,11 +25,11 @@ export class UsersController {
   ) {}
 
   @Get(':userId/favourites')
-  getFavourites(@Param('userId', ParseIntPipe) userId: number) {
+  async getFavourites(@Param('userId', ParseIntPipe) userId: number) {
     try {
-      return this.userService.getFavourites(userId);
+      return await this.userService.getFavourites(userId);
     } catch (error) {
-      return this.errorHandlerService.handleError(error);
+      throw this.errorHandlerService.handleError(error);
     }
   }
 
@@ -45,18 +45,18 @@ export class UsersController {
     try {
       product = await this.productService.getProductsById(body.productId);
       favourite = await this.userService.createFavorite(userId, body.productId);
+      return {
+        userId,
+        productId: body.productId,
+        createdAt: favourite.created_at,
+        product: {
+          title: product.title,
+          price: product.price,
+        },
+      };
     } catch (error) {
-      return this.errorHandlerService.handleError(error);
+      throw this.errorHandlerService.handleError(error);
     }
-    return {
-      userId,
-      productId: body.productId,
-      createdAt: favourite.created_at,
-      product: {
-        title: product.title,
-        price: product.price,
-      },
-    };
   }
 
   //Es un delete?
@@ -69,7 +69,7 @@ export class UsersController {
     try {
       await this.userService.deleteFavorite(userId, productId);
     } catch (error) {
-      return this.errorHandlerService.handleError(error);
+      throw this.errorHandlerService.handleError(error);
     }
   }
 }
