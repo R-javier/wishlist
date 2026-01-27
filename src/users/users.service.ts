@@ -81,7 +81,6 @@ export class UsersService {
   }
 
   async deleteFavorite(userId: number, productId: string): Promise<string> {
-    await this.getFavourite(userId, productId);
 
     const result = await pool.query(
       `
@@ -94,10 +93,6 @@ export class UsersService {
       `,
       [userId, productId],
     );
-
-    if (result !== 1) {
-      throw new Error('Error en la eliminacion del favorito');
-    }
 
     return `El producto ${productId} ha sido eliminado de los favoritos del usuario ${userId}`;
   }

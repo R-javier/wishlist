@@ -10,8 +10,8 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - ./pg-data:/var/lib/postgresql/data
-      - ./scripts/database:/docker-entrypoint-initdb.d
+      - pg-data:/var/lib/postgresql/data
+      - ./scripts/database-init:/docker-entrypoint-initdb.d
 
   catalog-mock:
     image: clue/json-server:latest
