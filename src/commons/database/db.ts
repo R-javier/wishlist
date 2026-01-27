@@ -2,8 +2,8 @@ import { Pool } from 'pg';
 
 export const pool = new Pool({
   host: process.env.HOST || 'localhost',
-  port: process.env.PORT || 5432,
-  user: process.env.USER || 'postgres',
-  password: process.env.PASSWORD || 'postgres',
+  port: process.env.DATABASEPORT || 5432,
+  user: process.env.DATABASEUSER || 'postgres',
+  password: process.env.DATABASEPASSWORD || 'postgres',
   database: process.env.DATABASE || 'productsdb',
 });

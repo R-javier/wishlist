@@ -34,36 +34,29 @@ export class UsersController {
   }
 
   @Post(':userId/favourites')
+  @HttpCode(201)
   async createFavourite(
     @Param('userId', ParseIntPipe) userId: number,
     @Body() body: CreateFavoriteDto,
   ) {
-    const product = await this.productService
-      .getProductsById(body.productId)
-      .catch(() => {
-        throw new NotFoundException('El producto no existe');
-      });
+    let product;
+    let favourite;
 
     try {
-      const favourite = await this.userService.createFavorite(
-        userId,
-        body.productId,
-      );
-
-      return {
-        userId,
-        productId: body.productId,
-        createdAt: favourite.created_at,
-        product: {
-          title: product.title,
-          price: product.price,
-        },
-      };
-    } catch (error: any) {
-      throw new BadRequestException(
-        error?.message ?? 'No se pudo crear el favorito',
-      );
+      product = await this.productService.getProductsById(body.productId);
+      favourite = await this.userService.createFavorite(userId, body.productId);
+    } catch (error) {
+      return this.errorHandlerService.handleError(error);
     }
+    return {
+      userId,
+      productId: body.productId,
+      createdAt: favourite.created_at,
+      product: {
+        title: product.title,
+        price: product.price,
+      },
+    };
   }
 
   //Es un delete?
@@ -73,10 +66,10 @@ export class UsersController {
     @Param('userId', ParseIntPipe) userId: number,
     @Param('productId') productId: string,
   ) {
-    const deleted = await this.userService.deleteFavorite(userId, productId);
-    if (deleted === 0) {
-      throw new NotFoundException('Favorito no encontrado.');
+    try {
+      await this.userService.deleteFavorite(userId, productId);
+    } catch (error) {
+      return this.errorHandlerService.handleError(error);
     }
-    return;
   }
 }
