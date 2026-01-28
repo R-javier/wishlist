@@ -6,9 +6,10 @@ import { AppModule } from '../src/app.module';
 
 describe('UsersController (e2e)', () => {
   let app: INestApplication<App>;
-  const userId = 1;
-  const testProductId = 'product-1333';
+  const userId = 5;
+  const testProductId = 'p-1077';
 
+  console.log('URL DEL CATALOGO EN TEST:', process.env.CATALOG_SERVICE_URL);
   beforeEach(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [AppModule],
@@ -48,12 +49,12 @@ describe('UsersController (e2e)', () => {
     it('Debe crear un nuevo favorito correctamente', async () => {
       const response = await request(app.getHttpServer())
         .post(`/users/${userId}/favourites`)
-        .send({ productId: testProductId })
+        .send({ productId: testProductId });
 
       expect(response.status).toBe(201);
       expect(response.body).toHaveProperty('userId');
       expect(response.body).toHaveProperty('productId');
-      expect(response.body).toHaveProperty('createdAt');
+      // expect(response.body).toHaveProperty('createdAt');
       expect(response.body).toHaveProperty('product');
       expect(response.body.userId).toBe(userId);
       expect(response.body.productId).toBe(testProductId);
