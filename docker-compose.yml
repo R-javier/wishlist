@@ -11,7 +11,7 @@ services:
       - "5432:5432"
     volumes:
       - ./pg-data:/var/lib/postgresql/data
-      - ./scripts:/docker-entrypoint-initdb.d
+      - ./scripts/database-init:/docker-entrypoint-initdb.d
 
   catalog-mock:
     image: clue/json-server:latest
