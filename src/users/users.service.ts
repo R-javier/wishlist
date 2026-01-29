@@ -5,6 +5,8 @@ import { ProductsService } from 'src/products/products.service';
 import { CreateFavoriteArgsDto } from 'src/dto/create-favorite-args-dto';
 import { CreateFavouriteDTO } from 'src/dto/create-favourite-dto';
 import { UsersRepository } from 'src/users/users.repository';
+import { popResultSelector } from 'rxjs/internal/util/args';
+import { resourceLimits } from 'worker_threads';
 
 @Injectable()
 export class UsersService {
@@ -42,6 +44,21 @@ export class UsersService {
     return favouriteProduct;
   }
 
+  async getInactiveFavourite(
+    userId: number,
+    productId: string,
+  ): Promise<FavouriteDTO | null> {
+    const result = await this.usersRepository.getInactiveFavouriteQuery(
+      userId,
+      productId,
+    );
+    if (result.rows.length === 0) {
+      return null;
+    } else {
+      return result.rows[0];
+    }
+  }
+
   //Habria que agregar al create favourite que si el favorito existe pero
   // tiene activated false, lo cambie a true
   async createFavourite(
@@ -63,11 +80,23 @@ export class UsersService {
   }
 
   async postFavorite(userId: number, productId: string): Promise<FavouriteDTO> {
-    const result = await this.usersRepository.postFavoriteQuery(
+    const existingInactiveFavourite = await this.getInactiveFavourite(
       userId,
       productId,
     );
-    return new FavouriteDTO(result.rows[0]);
+
+    if (existingInactiveFavourite === null) {
+      const result = await this.usersRepository.postFavoriteQuery(
+        userId,
+        productId,
+      );
+      return new FavouriteDTO(result.rows[0]);
+    } else {
+      const result = await this.usersRepository.activateFavourite(
+        existingInactiveFavourite.id,
+      );
+      return new FavouriteDTO(result.rows[0]);
+    }
   }
 
   async deleteFavorite(userId: number, productId: string): Promise<string> {

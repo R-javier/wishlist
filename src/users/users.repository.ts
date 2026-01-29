@@ -38,6 +38,28 @@ export class UsersRepository {
     return result;
   }
 
+  async getInactiveFavouriteQuery(userId: number, productId: string) {
+    const result = await pool.query(
+      `SELECT id, user_id, product_external_id, created_at 
+     FROM favourites 
+     WHERE user_id = $1 AND product_external_id = $2 AND active = false`,
+      [userId, productId],
+    );
+
+    return result;
+  }
+
+  async activateFavourite(favouriteId) {
+    const result = await pool.query(
+      `UPDATE favourites
+        SET active = true
+        WHERE id=$1 AND active=false
+        RETURNING *`,
+      [favouriteId],
+    );
+    return result;
+  }
+
   async postFavoriteQuery(userId: number, productId: string) {
     const result = await pool.query(
       `
@@ -70,7 +92,7 @@ export class UsersRepository {
       `,
       [userId, productId],
     );
-    
+
     if (result.rows.length === 0) {
       throw new NotFoundException('Favourite not found');
     }
