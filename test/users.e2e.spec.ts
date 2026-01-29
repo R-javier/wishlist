@@ -6,8 +6,8 @@ import { AppModule } from '../src/app.module';
 
 describe('UsersController (e2e)', () => {
   let app: INestApplication<App>;
-  const userId = 5;
-  const testProductId = 'p-1077';
+  const userId = 200;
+  const testProductId = 'p-1200';
 
   console.log('URL DEL CATALOGO EN TEST:', process.env.CATALOG_SERVICE_URL);
   beforeEach(async () => {
