@@ -4,7 +4,6 @@ import {
   Injectable,
   BadRequestException,
   NotFoundException,
-  ConflictException,
   RequestTimeoutException,
   ServiceUnavailableException,
 } from '@nestjs/common';
@@ -16,41 +15,37 @@ export class ErrorHandlerService {
       throw error;
     }
 
-    if (error instanceof ConflictException) {
-      throw error;
-    }
+    const status = error?.response?.status;
 
-    if (error instanceof NotFoundException) {
-      throw error;
-    }
-
-    if (error.response?.status) {
-      switch (error.response.status) {
-        case 400:
+    
+    if (status) {
+      switch (status) {
+        case HttpStatus.BAD_REQUEST:
           throw new BadRequestException(
             'Solicitud inválida al servicio de catálogo',
           );
 
-        case 404:
+        case HttpStatus.NOT_FOUND:
           throw new NotFoundException(
             'No se encontraron productos en el servicio de catálogo',
           );
 
-        case 408:
+        case HttpStatus.REQUEST_TIMEOUT:
           throw new RequestTimeoutException(
             'El servicio de catálogo tardó demasiado en responder',
           );
 
-        case 504:
+        case HttpStatus.SERVICE_UNAVAILABLE:
           throw new ServiceUnavailableException(
             'El servicio de catálogo no está disponible en este momento',
           );
 
         default:
-          throw new HttpException(error.message, 500);
+          throw new HttpException(error?.message ?? 'Error del servicio de catálogo', status);
       }
     }
 
-    throw new HttpException(error.message || 'Error interno del servidor', 500);
+    throw new HttpException(error.message || 'Error interno del servidor', HttpStatus.INTERNAL_SERVER_ERROR);
   }
 }
+

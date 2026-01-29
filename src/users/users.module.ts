@@ -1,8 +1,8 @@
 import { Module } from '@nestjs/common';
 import { UsersController } from './users.controller';
 import { UsersService } from './users.service';
-import { ProductsModule } from 'src/products/products.module';
-import { ErrorHandlerModule } from 'src/commons/error-handler/error-handler.module';
+import { ProductsModule } from '../products/products.module';
+import { ErrorHandlerModule } from '../commons/error-handler/error-handler.module';
 import { UsersRepository } from './users.repository';
 
 @Module({
