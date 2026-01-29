@@ -16,8 +16,9 @@ export class UsersService {
   async getFavourites(userId: number): Promise<ProductDTO[]> {
     const result = await this.usersRepository.getFavouritesQuery(userId);
 
-    //TODO se podria tipar rows?
-    const favouritesId = result.rows.map((row: any) => row.product_external_id);
+    const favouritesId = result.rows.map(
+      (row: FavouriteDTO) => row.product_external_id,
+    );
 
     const favouritesProducts: ProductDTO[] = await Promise.all(
       favouritesId.map((favouriteId: string) => {
@@ -41,6 +42,8 @@ export class UsersService {
     return favouriteProduct;
   }
 
+  //Habria que agregar al create favourite que si el favorito existe pero
+  // tiene activated false, lo cambie a true
   async createFavourite(
     userId: number,
     body: CreateFavoriteArgsDto,
