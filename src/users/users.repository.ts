@@ -70,7 +70,7 @@ export class UsersRepository {
       `,
       [userId, productId],
     );
-
+    
     if (result.rows.length === 0) {
       throw new NotFoundException('Favourite not found');
     }

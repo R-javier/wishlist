@@ -22,7 +22,7 @@ export class UsersController {
   ) {}
 
   @Get(':userId/favourites')
-  async getFavourites(@Param('userId', ParseIntPipe) userId: number)  {
+  async getFavourites(@Param('userId', ParseIntPipe) userId: number) {
     try {
       return await this.userService.getFavourites(userId);
     } catch (error) {
@@ -44,14 +44,18 @@ export class UsersController {
   }
 
   //Es un delete?
-  @Delete(':userId/favourites/:productId')
+  @Delete(':userId/favourites/')
   @HttpCode(204)
   async removeFavourite(
     @Param('userId', ParseIntPipe) userId: number,
-    @Param('productId') productId: string,
+    @Body() body: CreateFavoriteArgsDto,
   ) {
     try {
-      await this.userService.deleteFavorite(userId, productId);
+      const response = await this.userService.deleteFavorite(
+        userId,
+        body.productId,
+      );
+      return response;
     } catch (error) {
       throw this.errorHandlerService.handleError(error);
     }
