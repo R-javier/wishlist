@@ -1,8 +1,8 @@
 import { Injectable, ConflictException } from '@nestjs/common';
-import { pool } from 'src/commons/database/db';
-import { FavouriteDTO } from 'src/dto/favourite.dto';
-import { ProductDTO } from 'src/dto/product.dto';
-import { ProductsService } from 'src/products/products.service';
+import { pool } from '../commons/database/db';
+import { FavouriteDTO } from '../dto/favourite.dto';
+import { ProductDTO } from '../dto/product.dto';
+import { ProductsService } from '../products/products.service';
 import { NotFoundException } from '@nestjs/common';
 
 //TODO como usar el errorHandler para gestionar los errores?

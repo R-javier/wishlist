@@ -5,6 +5,7 @@ import { AppModule } from '../src/app.module';
 
 describe('Products (e2e)', () => {
     let app: INestApplication;
+    const testProductId = 'p-1203';
 
     beforeAll(async() => {
         const moduleFixture: TestingModule = await Test.createTestingModule({
@@ -28,8 +29,9 @@ describe('Products (e2e)', () => {
 
     it('GET /products/:id - respond 200', async () => {
         const res = await request(app.getHttpServer())
-        .get('/products/1');
+        .get(`/products/${testProductId}`);
         expect(res.status).toBe(200);
         expect(res.body).toBeDefined();
+        expect(res.body.id).toBe(testProductId);
     });
 });
