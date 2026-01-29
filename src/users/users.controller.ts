@@ -47,14 +47,18 @@ export class UsersController {
   }
 
   //Es un delete?
-  @Delete(':userId/favourites/:productId')
+  @Delete(':userId/favourites/')
   @HttpCode(204)
   async removeFavourite(
     @Param('userId', ParseIntPipe) userId: number,
-    @Param('productId') productId: string,
+    @Body() body: CreateFavoriteArgsDto,
   ) {
     try {
-      await this.userService.deleteFavorite(userId, productId);
+      const response = await this.userService.deleteFavorite(
+        userId,
+        body.productId,
+      );
+      return response;
     } catch (error) {
       throw this.errorHandlerService.handleError(error);
     }

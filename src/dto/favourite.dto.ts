@@ -1,5 +1,3 @@
-import { ProductDTO } from './product.dto';
-
 export class FavouriteDTO {
   id: number;
   user_id: number;
