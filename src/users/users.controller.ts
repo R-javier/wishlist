@@ -22,7 +22,7 @@ export class UsersController {
   ) {}
 
   @Get(':userId/favourites')
-  async getFavourites(@Param('userId', ParseIntPipe) userId: number) {
+  async getFavourites(@Param('userId', ParseIntPipe) userId: number)  {
     try {
       return await this.userService.getFavourites(userId);
     } catch (error) {

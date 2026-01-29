@@ -1,29 +1,20 @@
-import { Injectable, ConflictException } from '@nestjs/common';
-import { pool } from 'src/commons/database/db';
+import { Injectable } from '@nestjs/common';
 import { FavouriteDTO } from 'src/dto/favourite.dto';
 import { ProductDTO } from 'src/dto/product.dto';
 import { ProductsService } from 'src/products/products.service';
-import { NotFoundException } from '@nestjs/common';
 import { CreateFavoriteArgsDto } from 'src/dto/create-favorite-args-dto';
 import { CreateFavouriteDTO } from 'src/dto/create-favourite-dto';
-
-//TODO como usar el errorHandler para gestionar los errores?
+import { UsersRepository } from 'src/users/users.repository';
 
 @Injectable()
 export class UsersService {
-  constructor(private readonly productService: ProductsService) {}
+  constructor(
+    private readonly productService: ProductsService,
+    private readonly usersRepository: UsersRepository,
+  ) {}
 
-  async getFavourites(userId: number) {
-    const result = await pool.query(
-      `SELECT id, user_id, product_external_id, created_at 
-     FROM favourites 
-     WHERE user_id = $1`,
-      [userId],
-    );
-
-    if (!result || !result.rows) {
-      throw new Error(`Error buscando los favoritos del usuario ${userId}`);
-    }
+  async getFavourites(userId: number): Promise<ProductDTO[]> {
+    const result = await this.usersRepository.getFavouritesQuery(userId);
 
     //TODO se podria tipar rows?
     const favouritesId = result.rows.map((row: any) => row.product_external_id);
@@ -38,19 +29,10 @@ export class UsersService {
   }
 
   async getFavourite(userId: number, productId: string) {
-    const result = await pool.query(
-      `SELECT id, user_id, product_external_id, created_at 
-     FROM favourites 
-     WHERE user_id = $1 AND product_external_id = $2 AND active = true`,
-      [userId, productId],
+    const result = await this.usersRepository.getFavouriteQuery(
+      userId,
+      productId,
     );
-
-    if (result.rows.length === 0) {
-      throw new Error(
-        `Error, el producto no figura en los favoritos del usuario ${userId}`,
-      );
-    }
-
     const favouriteId = result.rows[0];
 
     const favouriteProduct: ProductDTO =
@@ -78,38 +60,15 @@ export class UsersService {
   }
 
   async postFavorite(userId: number, productId: string): Promise<FavouriteDTO> {
-    const result = await pool.query(
-      `
-      INSERT INTO favourites (user_id, product_external_id)
-      VALUES ($1, $2)
-      ON CONFLICT (user_id, product_external_id) DO NOTHING
-      RETURNING *;
-    `,
-      [userId, productId],
+    const result = await this.usersRepository.postFavoriteQuery(
+      userId,
+      productId,
     );
-
-    if (result.rows.length === 0) {
-      throw new ConflictException('El favorito ya existe');
-    }
     return new FavouriteDTO(result.rows[0]);
   }
 
   async deleteFavorite(userId: number, productId: string): Promise<string> {
-    const result = await pool.query(
-      `
-      UPDATE favourites
-      SET active = false
-      WHERE user_id = $1 
-      AND product_external_id = $2 
-      AND active = true
-      RETURNING *;
-      `,
-      [userId, productId],
-    );
-
-    if (result.rows.length === 0) {
-      throw new NotFoundException('Favourite not found');
-    }
+    await this.usersRepository.deleteFavoriteQuery(userId, productId);
     return `El producto ${productId} ha sido eliminado de los favoritos del usuario ${userId}`;
   }
 }
