@@ -4,6 +4,8 @@ import { FavouriteDTO } from 'src/dto/favourite.dto';
 import { ProductDTO } from 'src/dto/product.dto';
 import { ProductsService } from 'src/products/products.service';
 import { NotFoundException } from '@nestjs/common';
+import { CreateFavoriteArgsDto } from 'src/dto/create-favorite-args-dto';
+import { CreateFavouriteDTO } from 'src/dto/create-favourite-dto';
 
 //TODO como usar el errorHandler para gestionar los errores?
 
@@ -57,10 +59,25 @@ export class UsersService {
     return favouriteProduct;
   }
 
-  async createFavorite(
+  async createFavourite(
     userId: number,
-    productId: string,
-  ): Promise<FavouriteDTO> {
+    body: CreateFavoriteArgsDto,
+  ): Promise<CreateFavouriteDTO> {
+    const product = await this.productService.getProductsById(body.productId);
+    const favourite = await this.postFavorite(userId, body.productId);
+
+    return {
+      user_id: userId,
+      product_external_id: body.productId,
+      created_at: favourite.created_at,
+      product: {
+        title: product.title,
+        price: product.price,
+      },
+    };
+  }
+
+  async postFavorite(userId: number, productId: string): Promise<FavouriteDTO> {
     const result = await pool.query(
       `
       INSERT INTO favourites (user_id, product_external_id)

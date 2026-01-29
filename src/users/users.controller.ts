@@ -11,8 +11,7 @@ import {
 import { UsersService } from './users.service';
 import { ErrorHandlerService } from '../commons/error-handler/error-handler.service';
 import { ProductsService } from 'src/products/products.service';
-import { CreateFavoriteDto } from 'src/dto/create-favorite.dto';
-import { ErrorRequestHandler } from 'express';
+import { CreateFavoriteArgsDto } from 'src/dto/create-favorite-args-dto';
 
 //TODO Refactorizar que use el errormodule
 
@@ -37,14 +36,14 @@ export class UsersController {
   @HttpCode(201)
   async createFavourite(
     @Param('userId', ParseIntPipe) userId: number,
-    @Body() body: CreateFavoriteDto,
+    @Body() body: CreateFavoriteArgsDto,
   ) {
     let product;
     let favourite;
 
     try {
       product = await this.productService.getProductsById(body.productId);
-      favourite = await this.userService.createFavorite(userId, body.productId);
+      favourite = await this.userService.postFavorite(userId, body.productId);
       return {
         userId,
         productId: body.productId,
