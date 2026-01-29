@@ -10,7 +10,6 @@ import {
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { ErrorHandlerService } from '../commons/error-handler/error-handler.service';
-import { ProductsService } from 'src/products/products.service';
 import { CreateFavoriteArgsDto } from 'src/dto/create-favorite-args-dto';
 
 //TODO Refactorizar que use el errormodule
@@ -19,7 +18,6 @@ import { CreateFavoriteArgsDto } from 'src/dto/create-favorite-args-dto';
 export class UsersController {
   constructor(
     private readonly userService: UsersService,
-    private readonly productService: ProductsService,
     private readonly errorHandlerService: ErrorHandlerService,
   ) {}
 
@@ -38,21 +36,8 @@ export class UsersController {
     @Param('userId', ParseIntPipe) userId: number,
     @Body() body: CreateFavoriteArgsDto,
   ) {
-    let product;
-    let favourite;
-
     try {
-      product = await this.productService.getProductsById(body.productId);
-      favourite = await this.userService.postFavorite(userId, body.productId);
-      return {
-        userId,
-        productId: body.productId,
-        createdAt: favourite.created_at,
-        product: {
-          title: product.title,
-          price: product.price,
-        },
-      };
+      return await this.userService.postFavorite(userId, body.productId);
     } catch (error) {
       throw this.errorHandlerService.handleError(error);
     }
