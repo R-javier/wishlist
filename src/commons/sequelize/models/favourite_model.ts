@@ -1,9 +1,7 @@
-import { Sequelize, DataTypes, Model } from 'sequelize';
-import { config_db } from '../seq_config';
+import { DataTypes, Model } from 'sequelize';
+import { sequelize } from '../seq_config';
 
-const sequelize = config_db();
-
-class Favourite extends Model {
+export class FavouriteModel extends Model {
   declare id: number;
   declare user_id: number;
   declare product_external_id: string;
@@ -11,7 +9,7 @@ class Favourite extends Model {
   declare created_at: Date;
 }
 
-Favourite.init(
+FavouriteModel.init(
   {
     id: {
       type: DataTypes.INTEGER,
