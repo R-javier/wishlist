@@ -1,98 +1,137 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# Wishlist API
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+API REST para gestión de listas de deseos que permite a los usuarios guardar sus productos favoritos desde un catálogo externo. Construida con NestJS y PostgreSQL.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+![NestJS](https://img.shields.io/badge/nestjs-%23E0234E.svg?style=for-the-badge&logo=nestjs&logoColor=white)
+![PostgreSQL](https://img.shields.io/badge/postgres-%23316192.svg?style=for-the-badge&logo=postgresql&logoColor=white)
+![Docker](https://img.shields.io/badge/docker-%230db7ed.svg?style=for-the-badge&logo=docker&logoColor=white)
+![TypeScript](https://img.shields.io/badge/typescript-%23007ACC.svg?style=for-the-badge&logo=typescript&logoColor=white)
 
-## Description
+## ✨ Características Principales
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+- **Gestión de Favoritos:** Los usuarios pueden agregar, consultar y eliminar productos de su wishlist personal.
+- **Integración con Catálogo Externo:** Consulta productos desde un servicio de catálogo independiente vía API REST.
+- **Tests E2E Completos:** Suite de pruebas end-to-end para garantizar el correcto funcionamiento de todos los endpoints.
 
-## Project setup
+## 🏗️ Arquitectura
 
-```bash
-$ pnpm install
+El proyecto está compuesto por tres servicios principales:
+
+```
+┌─────────────────┐      ┌──────────────────┐      ┌─────────────────┐
+│  Wishlist API   │─────▶│ Catalog Service  │      │   PostgreSQL    │
+│   (Puerto 3000) │      │   (Puerto 3001)  │      │  (Puerto 5432)  │
+└─────────────────┘      └──────────────────┘      └─────────────────┘
+        │                                                    │
+        └────────────────────────────────────────────────────┘
+                    Almacena productos favoritos
 ```
 
-## Compile and run the project
+## 📡 Endpoints Disponibles
+
+### Productos (Catálogo)
+- `GET /products` - Obtener todos los productos del catálogo
+- `GET /products/:id` - Obtener un producto específico por ID
+
+### Favoritos (Wishlist)
+- `GET /users/:userId/wishlist` - Obtener la wishlist de un usuario
+- `POST /users/:userId/wishlist` - Agregar un producto a la wishlist
+- `DELETE /users/:userId/wishlist/:productId` - Eliminar un producto de la wishlist
+- `GET /users/:userId/wishlist/:productId` - Obtener un favorito específico
+
+## 🚀 Instalación y Uso
+
+### Requisitos Previos
+
+- [Docker](https://www.docker.com/get-started) y Docker Compose
+- [pnpm](https://pnpm.io/installation) (gestor de paquetes)
+- Node.js v18 o superior
+
+### Pasos de Instalación
+
+1. **Clona este repositorio**
+   ```bash
+   git clone https://github.com/R-javier/wishlist.git
+             
+
+   cd wishlist
+   ```
+
+2. **Configura las variables de entorno**
+   
+   Copia el archivo de ejemplo y completa los valores:
+   ```bash
+   cp .env.example .env
+   ```
+   
+   Edita el archivo `.env` y configura:
+   ```env
+   DB_PASSWORD=tu_contraseña_segura
+   DB_NAME=wishlist_db
+   # El resto de las variables ya tienen valores por defecto
+   ```
+
+3. **Instala las dependencias**
+   ```bash
+   pnpm install
+   ```
+
+4. **Levanta los servicios con Docker Compose**
+   ```bash
+   docker-compose up -d
+   ```
+   
+   Esto iniciará:
+   - 🗄️ PostgreSQL en `localhost:5432`
+   - 📦 Catalog Service en `localhost:3001`
+
+5. **Inicia la aplicación**
+   ```bash
+   pnpm run start:dev
+   ```
+   
+   La API estará disponible en `http://localhost:3000`
+
+
+### Ejecutar todos los tests E2E
 
 ```bash
-# development
-$ pnpm run start
-
-# watch mode
-$ pnpm run start:dev
-
-# production mode
-$ pnpm run start:prod
+pnpm run test:e2e
 ```
 
-## Run tests
+### Ejecutar tests específicos
 
 ```bash
-# unit tests
-$ pnpm run test
+# Solo tests de productos
+pnpm run test:e2e -- test/products.e2e.spec.ts
 
-# e2e tests
-$ pnpm run test:e2e
-
-# test coverage
-$ pnpm run test:cov
+# Solo tests de usuarios/wishlist
+pnpm run test:e2e -- test/users.e2e.spec.ts
 ```
 
-## Deployment
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
-
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
-
-```bash
-$ pnpm install -g @nestjs/mau
-$ mau deploy
 ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+## 🐳 Docker Compose
 
-## Resources
+El archivo `docker-compose.yml` incluye:
 
-Check out a few resources that may come in handy when working with NestJS:
+```yaml
+services:
+  postgres:       # Base de datos PostgreSQL
+  catalog:        # Servicio de catálogo externo
+```
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
 
-## Support
+## 📝 Variables de Entorno
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+| Variable | Descripción | Valor por defecto |
+|----------|-------------|-------------------|
+| `DB_HOST` | Host de PostgreSQL | `localhost` |
+| `DB_PORT` | Puerto de PostgreSQL | `5432` |
+| `DB_USERNAME` | Usuario de la BD | `postgres` |
+| `DB_PASSWORD` | Contraseña de la BD | ⚠️ **Configurar** |
+| `DB_NAME` | Nombre de la BD | ⚠️ **Configurar** |
+| `CATALOG_SERVICE_URL` | URL del catálogo | `http://localhost:3001/products` |
 
-## Stay in touch
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
-
-## License
-
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).

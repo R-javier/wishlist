@@ -1,0 +1,26 @@
+services:
+  postgres:
+    image: postgres:15
+    container_name: products_postgres
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: productsdb
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./pg-data:/var/lib/postgresql/data
+      - ./scripts/database-init:/docker-entrypoint-initdb.d
+
+  catalog-mock:
+    image: clue/json-server:latest
+    container_name: catalog_mock
+    ports:
+      - "3001:80"
+    volumes:
+      - ./external-service/db.json:/data/db.json:ro
+    command: /data/db.json
+
+volumes:
+  pg-data:
