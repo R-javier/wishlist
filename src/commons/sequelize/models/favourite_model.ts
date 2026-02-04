@@ -27,12 +27,6 @@ FavouriteModel.init(
       allowNull: false,
     },
 
-    active: {
-      type: DataTypes.BOOLEAN,
-      allowNull: false,
-      defaultValue: true,
-    },
-
     created_at: {
       type: DataTypes.DATE,
       allowNull: false,
@@ -43,6 +37,8 @@ FavouriteModel.init(
     sequelize,
     tableName: 'favourites',
     timestamps: false,
+    paranoid: true,
+    deletedAt: 'deleted_at',
     indexes: [
       {
         unique: true,
