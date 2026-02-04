@@ -1,12 +1,11 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { FavouriteDTO } from 'src/dto/favourite.dto';
 import { ProductDTO } from 'src/dto/product.dto';
 import { ProductsService } from 'src/products/products.service';
 import { CreateFavoriteArgsDto } from 'src/dto/create-favorite-args-dto';
 import { CreateFavouriteDTO } from 'src/dto/create-favourite-dto';
 import { UsersRepository } from 'src/users/users.repository';
-import { popResultSelector } from 'rxjs/internal/util/args';
-import { resourceLimits } from 'worker_threads';
+import { FavouriteModel } from 'src/commons/sequelize/models/favourite_model';
 
 @Injectable()
 export class UsersService {
@@ -16,10 +15,10 @@ export class UsersService {
   ) {}
 
   async getFavourites(userId: number): Promise<ProductDTO[]> {
-    const result = await this.usersRepository.getFavouritesQuery(userId);
+    const favourites = await this.usersRepository.getFavouritesQuery(userId);
 
-    const favouritesId = result.rows.map(
-      (row: FavouriteDTO) => row.product_external_id,
+    const favouritesId = favourites.map(
+      (favourite: FavouriteDTO) => favourite.product_external_id,
     );
 
     const favouritesProducts: ProductDTO[] = await Promise.all(
@@ -36,7 +35,16 @@ export class UsersService {
       userId,
       productId,
     );
-    const favouriteId = result.rows[0];
+
+    //TODO: Esto deberia usar el errorHandler
+
+    if (!result) {
+      throw new NotFoundException(
+        'No se encontro el favorito con el id solicitado.',
+      );
+    }
+
+    const favouriteId = result.product_external_id;
 
     const favouriteProduct: ProductDTO =
       await this.productService.getProductsById(favouriteId);
@@ -44,23 +52,6 @@ export class UsersService {
     return favouriteProduct;
   }
 
-  async getInactiveFavourite(
-    userId: number,
-    productId: string,
-  ): Promise<FavouriteDTO | null> {
-    const result = await this.usersRepository.getInactiveFavouriteQuery(
-      userId,
-      productId,
-    );
-    if (result.rows.length === 0) {
-      return null;
-    } else {
-      return result.rows[0];
-    }
-  }
-
-  //Habria que agregar al create favourite que si el favorito existe pero
-  // tiene activated false, lo cambie a true
   async createFavourite(
     userId: number,
     body: CreateFavoriteArgsDto,
@@ -80,23 +71,18 @@ export class UsersService {
   }
 
   async postFavorite(userId: number, productId: string): Promise<FavouriteDTO> {
-    const existingInactiveFavourite = await this.getInactiveFavourite(
+    const restored = await this.usersRepository.restoreFavourite(
       userId,
       productId,
     );
+    let favourite: FavouriteModel;
 
-    if (existingInactiveFavourite === null) {
-      const result = await this.usersRepository.postFavoriteQuery(
-        userId,
-        productId,
-      );
-      return new FavouriteDTO(result.rows[0]);
+    if (restored) {
+      favourite = restored;
     } else {
-      const result = await this.usersRepository.activateFavourite(
-        existingInactiveFavourite.id,
-      );
-      return new FavouriteDTO(result.rows[0]);
+      favourite = await this.usersRepository.createFavourite(userId, productId);
     }
+    return new FavouriteDTO(favourite.toJSON());
   }
 
   async deleteFavorite(userId: number, productId: string): Promise<string> {

@@ -3,7 +3,6 @@ export class FavouriteDTO {
   user_id: number;
   product_external_id: string;
   created_at: Date;
-  active: boolean;
 
   constructor(row: any) {
     this.id = row.id;
