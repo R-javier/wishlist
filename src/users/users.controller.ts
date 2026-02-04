@@ -10,9 +10,6 @@ import {
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { ErrorHandlerService } from '../commons/error-handler/error-handler.service';
-import { ProductsService } from '../products/products.service';
-import { CreateFavoriteDto } from '../dto/create-favorite.dto';
-import { ErrorRequestHandler } from 'express';
 import { CreateFavoriteArgsDto } from 'src/dto/create-favorite-args-dto';
 
 //TODO Refactorizar que use el errormodule
